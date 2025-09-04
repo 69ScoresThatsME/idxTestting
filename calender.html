@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendar - Investment Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  margin:0;
+  font-family:'Segoe UI', Roboto, Arial, sans-serif;
+  background:#0d0d0d;
+  color:#f0e6d2;
+}
+header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:15px 20px; background: linear-gradient(90deg, #d4af37, #ffd700);
+  color:#0d0d0d; font-weight:700; font-size:24px; box-shadow:0 4px 15px rgba(212,175,55,0.5);
+}
+button {
+  padding:10px 16px; font-size:16px; border:none; border-radius:12px;
+  background:linear-gradient(145deg,#d4af37,#eed963);
+  color:#0d0d0d; font-weight:600; cursor:pointer;
+  box-shadow:0 4px 15px rgba(212,175,55,0.6); transition:0.3s;
+}
+button:hover { transform:scale(1.05); box-shadow:0 6px 20px rgba(212,175,55,0.8);}
+.container { padding:20px; }
+.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:20px; }
+.day {
+  width:100%; padding:15px; text-align:center; border-radius:8px;
+  background:#1a1a1a; cursor:pointer; font-weight:600; position:relative;
+  transition: all 0.3s ease;
+}
+.day.highlight { background: linear-gradient(145deg,#ffd700,#d4af37); color:#0d0d0d; }
+.day.today { border:2px solid #ffd700; box-shadow:0 0 10px #ffd700;}
+input[type=number] { width:100%; padding:8px; border-radius:8px; border:1px solid #d4af37; background:#1a1a1a; color:#f0e6d2; margin-top:5px; }
+select { padding:8px; border-radius:8px; border:1px solid #d4af37; background:#1a1a1a; color:#f0e6d2; margin-bottom:10px; }
+#summaryChart { max-width:100%; margin-top:20px; background:#1a1a1a; padding:15px; border-radius:12px; box-shadow:0 4px 15px rgba(212,175,55,0.4); }
+.calendar {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(40px,1fr));
+  gap:5px;
+  margin-bottom:20px;
+}
+.day {
+  width:100%; padding:10px;
+  text-align:center;
+  border-radius:8px;
+  background:#1a1a1a;
+  cursor:pointer;
+  font-weight:600;
+  position:relative;
+  transition: all 0.3s ease;
+  box-sizing:border-box;
+}
+.day.selected { border:2px solid #ffffff; box-shadow:0 0 10px #ffffff;}
+.day.highlight { background: linear-gradient(90deg,#ffd700,#d4af37); color:#0d0d0d; }
+@media(max-width:480px){
+  input, select, button { font-size:14px; padding:8px; }
+}
+.month-year-bar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.month-year-bar select {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d4af37;
+  background: #1a1a1a;
+  color: #f0e6d2;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 วันต่อแถว */
+  gap: 5px;
+}
+
+.day {
+  aspect-ratio: 1 / 1;       /* ทำให้ทุกวันเป็นช่องสี่เหลี่ยม */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  word-break: break-word;    /* ป้องกันข้อความล้น */
+}
+
+/* ===== Calendar CSS ===== */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+.day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  position: relative;
+  background:#1a1a1a;
+  color:#f0e6d2;
+  word-break: break-word;
+}
+.day.today {
+  background: #0d0d0d;
+  color: #ffd700;
+}
+.day.selected {
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+.day.highlight {
+  background: linear-gradient(145deg,#ffd700,#d4af37);
+  color:#0d0d0d;
+}
+.day span {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
+  font-weight: normal;
+  color: #ffd700;
+}
+
+
+</style>
+</head>
+<body>
+
+<header>
+  <span>Calendar - Investment Tracker</span>
+  <button onclick="goBack()">Back</button>
+</header>
+
+<div class="container">
+  <div class="month-year-bar">
+    <select id="monthSelect"></select>
+    <select id="yearSelect"></select>
+  </div>
+  <div class="calendar" id="calendar"></div>
+
+  <div>
+    <label>ใส่จำนวนเงิน USD:</label>
+    <input type="number" id="dailyAmount" min="0" max="1000" placeholder="ตัวอย่าง: 25">
+    <button onclick="addAmount()">บันทึกเงินวันนี้</button>
+  </div>
+
+  <canvas id="summaryChart"></canvas>
+</div>
+<div class="view-buttons">
+  <button data-view="day" onclick="setView('day')" class="active" style="margin-left:5%;">รายวัน</button>
+  <button data-view="month" onclick="setView('month')">รายเดือน</button>
+  <button data-view="year" onclick="setView('year')">รายปี</button>
+</div>
+
+
+
+
+
+<script>
+let today = new Date();
+let selectedDate = today;
+let dailyData = JSON.parse(localStorage.getItem('dailyData')) || {};
+let currentView = 'day';
+
+// กลับหน้า index.html
+function goBack(){ window.location.href = 'index.html'; }
+
+// เลือกเดือนและปี
+function fillMonthYearSelect() {
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  monthSelect.innerHTML = '';
+  yearSelect.innerHTML = '';
+
+  months.forEach((m,i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m;
+    if(i===today.getMonth()) opt.selected = true;
+    monthSelect.appendChild(opt);
+  });
+
+  for(let y=today.getFullYear()-5; y<=today.getFullYear()+5; y++){
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if(y===today.getFullYear()) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  monthSelect.onchange = yearSelect.onchange = () => {
+    generateCalendar(parseInt(monthSelect.value), parseInt(yearSelect.value));
+    drawChart();
+  };
+}
+
+// สร้าง Calendar
+function generateCalendar(month, year) {
+  const calendar = document.getElementById('calendar');
+  calendar.innerHTML = '';
+  const firstDay = new Date(year, month,1).getDay();
+  const lastDate = new Date(year, month+1,0).getDate();
+
+  for(let i=0;i<firstDay;i++){ calendar.appendChild(document.createElement('div')); }
+
+  for(let day=1; day<=lastDate; day++){
+    const div = document.createElement('div');
+    div.className = 'day';
+    div.textContent = day;
+
+    const key = `${year}-${month+1}-${day}`;
+
+    // highlight today
+    if(day===today.getDate() && month===today.getMonth() && year===today.getFullYear()){
+      div.classList.add('today');
+      const span = document.createElement('span');
+      span.textContent='today';
+      div.appendChild(span);
+    }
+
+    // highlight selected
+    if(selectedDate.getDate()===day && selectedDate.getMonth()===month && selectedDate.getFullYear()===year){
+      div.classList.add('selected');
+    }
+
+    // highlight if dailyData exists
+    if(dailyData[key]){
+      div.style.background=`rgba(255,215,0,${Math.min(dailyData[key]/5,1)})`;
+      div.style.color='#0d0d0d';
+    }
+
+    div.onclick = ()=>{
+      selectedDate = new Date(year, month, day);
+      document.getElementById('dailyAmount').value=dailyData[key]||'';
+      generateCalendar(month,year); // redraw highlight
+    };
+
+    calendar.appendChild(div);
+  }
+}
+
+// บันทึกเงิน
+function addAmount(){
+  const amount = parseFloat(document.getElementById('dailyAmount').value)||0;
+  const y=selectedDate.getFullYear(), m=selectedDate.getMonth()+1, d=selectedDate.getDate();
+  const key=`${y}-${m}-${d}`;
+  dailyData[key]=amount;
+  localStorage.setItem('dailyData',JSON.stringify(dailyData));
+  generateCalendar(selectedDate.getMonth(),selectedDate.getFullYear());
+  drawChart();
+}
+
+// วาดกราฟรายวัน
+function drawChart(){
+  const ctx = document.getElementById('summaryChart').getContext('2d');
+  const month=parseInt(document.getElementById('monthSelect').value);
+  const year=parseInt(document.getElementById('yearSelect').value);
+  const daysInMonth = new Date(year, month+1,0).getDate();
+  const labels=[], data=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const key=`${year}-${month+1}-${d}`;
+    labels.push(d);
+    data.push(dailyData[key]||0);
+  }
+
+  if(window.barChart) window.barChart.destroy();
+  window.barChart = new Chart(ctx,{
+    type:'bar',
+    data:{ labels, datasets:[{ label:`เติมเงิน USD`, data, backgroundColor:data.map(v=>`rgba(255,215,0,${Math.min(v/40,1)})`) }] },
+    options:{ responsive:true, plugins:{ legend:{labels:{color:'#f0e6d2'}}}, scales:{ x:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} }, y:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} } } }
+  });
+}
+
+// วาดกราฟรายเดือน
+function drawMonthChart(){
+  const ctx = document.getElementById('summaryChart').getContext('2d');
+  const year = parseInt(document.getElementById('yearSelect').value);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const labels = months;
+  const data = months.map((_,i)=>{
+    let sum=0;
+    const daysInMonth = new Date(year,i+1,0).getDate();
+    for(let d=1;d<=daysInMonth;d++){
+      const key = `${year}-${i+1}-${d}`;
+      sum += dailyData[key]||0;
+    }
+    return sum;
+  });
+
+  if(window.barChart) window.barChart.destroy();
+  window.barChart = new Chart(ctx,{
+    type:'bar',
+    data:{ labels, datasets:[{ label:`เติมเงิน USD ต่อเดือน`, data, backgroundColor:'rgba(255,215,0,0.8)'}] },
+    options:{ responsive:true, plugins:{ legend:{labels:{color:'#f0e6d2'}}}, scales:{ x:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} }, y:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} } } }
+  });
+}
+
+// วาดกราฟรายปี
+function drawYearChart(){
+  const ctx = document.getElementById('summaryChart').getContext('2d');
+  const years = Object.keys(dailyData).map(k=>parseInt(k.split('-')[0]));
+  const uniqueYears = [...new Set(years)].sort();
+  const labels = uniqueYears;
+  const data = uniqueYears.map(y=>{
+    let sum=0;
+    Object.keys(dailyData).forEach(k=>{
+      if(parseInt(k.split('-')[0])===y) sum+=dailyData[k];
+    });
+    return sum;
+  });
+
+  if(window.barChart) window.barChart.destroy();
+  window.barChart = new Chart(ctx,{
+    type:'bar',
+    data:{ labels, datasets:[{ label:`เติมเงิน USD ต่อปี`, data, backgroundColor:'rgba(255,215,0,0.8)'}] },
+    options:{ responsive:true, plugins:{ legend:{labels:{color:'#f0e6d2'}}}, scales:{ x:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} }, y:{ ticks:{ color:'#f0e6d2' }, grid:{ color:'#333'} } } }
+  });
+}
+
+// เปลี่ยน view
+function setView(view){
+  currentView = view;
+  document.querySelectorAll('.view-buttons button').forEach(btn=>{
+    btn.classList.remove('active');
+  });
+  document.querySelector(`.view-buttons button[data-view="${view}"]`).classList.add('active');
+
+  if(view==='day'){
+    document.querySelector('.month-year-bar').style.display='flex';
+    document.getElementById('calendar').style.display='grid';
+    drawChart();
+  } else if(view==='month'){
+    document.querySelector('.month-year-bar').style.display='none';
+    document.getElementById('calendar').style.display='none';
+    drawMonthChart();
+  } else if(view==='year'){
+    document.querySelector('.month-year-bar').style.display='none';
+    document.getElementById('calendar').style.display='none';
+    drawYearChart();
+  }
+}
+
+// เริ่มต้น
+fillMonthYearSelect();
+generateCalendar(today.getMonth(),today.getFullYear());
+drawChart();
+</script>
+
+
+
+</body>
+</html>
