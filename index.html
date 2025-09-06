@@ -21,7 +21,6 @@ body {
 .container { display:flex; min-height:100vh; }
 
 
-
 /* ===== Sidebar ===== */
 .sidebar {
   width:30%;
@@ -414,6 +413,37 @@ td, th { padding: 14px; }
   box-shadow: 0 0 10px rgba(255,215,0,0.7);
 }
 
+canvas {
+  width: 100% !important;
+  max-width: 100%;
+  height: 300px; /* กำหนดความสูงคงที่ หรือปรับตามขนาดมือถือ */
+  display: none;
+}
+@media (max-width: 600px) {
+  canvas {
+    height: 220px; /* ความสูงเหมาะสมบนมือถือ */
+  }
+}
+
+.graph-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.graph-buttons button {
+  flex: 1 1 45%; /* desktop */
+}
+
+@media (max-width: 600px) {
+  .graph-buttons button {
+    flex: 1 1 100%; /* แถวละปุ่มบนมือถือ */
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+
 
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
@@ -451,7 +481,7 @@ td, th { padding: 14px; }
       <canvas id="chartRatio"></canvas>
       <canvas id="chartPercent"></canvas>
 
-      <div class="input-box" style="margin: 20px;">
+      <div class="input-box">
         <input type="number" id="baht" placeholder="บาท">
         <input type="number" id="dollar" placeholder="ดอลลาร์">
         <button onclick="addData()" >เพิ่มข้อมูล</button>
