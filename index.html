@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard with Tabs</title>
-
+<title>Decipline</title>
+<link rel="icon" href="icon.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- เพิ่ม SortableJS library -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
 
 <style>
 /* ===== Body & Container ===== */
@@ -18,6 +19,8 @@ body {
   color: #e0e0e0;         /* ตัวหนังสือสว่าง */
 }
 .container { display:flex; min-height:100vh; }
+
+
 
 /* ===== Sidebar ===== */
 .sidebar {
@@ -252,28 +255,191 @@ td, th { padding: 14px; }
   transition: width 0.3s, transform 0.3s;
 }
 
+/* ปุ่ม Floating Balloon */
+#menu-balloon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #d4af37, #ffd700);
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(212,175,55,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2000;
+  transition: transform 0.2s;
+}
+#menu-balloon:hover {
+  transform: scale(1.1);
+}
+#menu-balloon span {
+  font-size: 28px;
+  color: #0d0d0d;
+  font-weight: bold;
+}
+
+/* เมนูลอย (Overlay) */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a1a1a, #333333);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.7);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1999;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-overlay.active {
+  transform: translateX(0);
+}
+
+/* ปุ่ม Floating Balloon */
+#menu-balloon {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 65px;
+  height: 65px;
+  background: radial-gradient(circle at 30% 30%, #ffd700, #a67c00);
+  border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2000;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+#menu-balloon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(255,215,0,0.7);
+}
+#menu-balloon i {
+  font-size: 28px;
+  color: #0d0d0d;
+  font-weight: bold;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  background: rgba(20,20,20,0.9);
+  backdrop-filter: blur(10px);
+  border-right: 2px solid rgba(255,215,0,0.4);
+  box-shadow: 4px 0 15px rgba(0,0,0,0.8);
+  transform: translateX(-100%);
+  transition: transform 0.35s ease-in-out;
+  z-index: 1999;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0 20px 20px 0;
+}
+.sidebar-overlay.active {
+  transform: translateX(0);
+}
+
+/* Title */
+.sidebar-overlay h2 {
+  color: #ffd700;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "Segoe UI", sans-serif;
+  font-weight: 600;
+}
+
+/* Menu Buttons */
+.sidebar-overlay button {
+  background: linear-gradient(145deg, #1c1c1c, #2a2a2a);
+  border: 1px solid rgba(255,215,0,0.4);
+  color: #f0f0f0;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  text-align: left;
+  transition: background 0.25s, transform 0.2s;
+}
+.sidebar-overlay button:hover {
+  background: linear-gradient(145deg, #2a2a2a, #3a3a3a);
+  transform: translateX(5px);
+  color: #ffd700;
+  border-color: #ffd700;
+}
+
+
+.sidebar-overlay {
+  pointer-events: none; /* ทั้ง overlay จะไม่กิน event */
+}
+
+.sidebar-overlay.active {
+  pointer-events: auto; /* แต่เวลา active เปิดให้คลิกได้ */
+}
+
+#menu-balloon {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 3000; /* ยกให้สูงกว่า overlay */
+}
+
+.graph-buttons button {
+  background: linear-gradient(145deg, #1c1c1c, #2a2a2a);
+  border: 1px solid rgba(255,215,0,0.4);
+  color: #f0e6d2;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.graph-buttons button:hover {
+  background: linear-gradient(145deg, #2a2a2a, #3a3a3a);
+  color: #ffd700;
+  border-color: #ffd700;
+}
+.graph-buttons button.active {
+  background: linear-gradient(145deg, #d4af37, #ffd700);
+  color: #0d0d0d;
+  box-shadow: 0 0 10px rgba(255,215,0,0.7);
+}
+
+
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-<div class="container">
-  <div class="sidebar">
-    <h2>Menu</h2>
-    <button onclick="showTab('investment')" class="active">Investment Zone</button>
-    <button onclick="showTab('expense')">Portflorio</button>
-    <button onclick="showTab('hall')">Hall of Legend</button>
-    <button onclick="showTab('goal')">Goal</button>
-    <button onclick="openCalendar()">Calender</button>
+ <!-- Floating Balloon -->
+<div id="menu-balloon"><span>☰</span></div>
 
-  </div>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay">
+  <h2>Menu</h2>
+  <button onclick="showTab('investment')" class="active">Statistic</button>
+  <button onclick="showTab('expense')">Portflorio</button>
+  <button onclick="showTab('hall')">Hall of Legend</button>
+  <button onclick="showTab('goal')">Goal</button>
+  <button onclick="openCalendar()">Calendar</button>
+</div>
+ 
+  
+<div class="container">
+  
 
   <div class="main">
-    <button id="toggle-button" onclick="toggleSidebar()">ซ่อน/แสดงเมนู</button>
-
     <!-- Tab 1: Investment Zone -->
     <div id="investment" class="tab-content">
-      <h1>Investment zone</h1>
+      <h1>Statistic</h1>
       <div class="graph-buttons">
         <button onclick="showGraph('baht')" class="active">มูลค่าบาทสะสม</button>
         <button onclick="showGraph('dollar')">มูลค่าดอลลาร์สะสม</button>
@@ -285,10 +451,10 @@ td, th { padding: 14px; }
       <canvas id="chartRatio"></canvas>
       <canvas id="chartPercent"></canvas>
 
-      <div class="input-box">
+      <div class="input-box" style="margin: 20px;">
         <input type="number" id="baht" placeholder="บาท">
         <input type="number" id="dollar" placeholder="ดอลลาร์">
-        <button onclick="addData()">เพิ่มข้อมูล</button>
+        <button onclick="addData()" >เพิ่มข้อมูล</button>
       </div>
 
       <div class="delete-box">
@@ -368,15 +534,6 @@ td, th { padding: 14px; }
 </div>
 
 <script>
-    function toggleSidebar() {
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar.style.display === 'none' || sidebar.style.display === '') {
-        sidebar.style.display = 'flex';
-    } else {
-        sidebar.style.display = 'none';
-    }
-}
-
 
     function showTab(tab){
     document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
@@ -711,6 +868,46 @@ td, th { padding: 14px; }
     function openCalendar() {
     window.location.href = 'calender.html'; // เปลี่ยนหน้าไป calendar.html
 }
+
+document.getElementById("menu-balloon").addEventListener("click", () => {
+  document.getElementById("sidebarOverlay").classList.toggle("active");
+});
+
+charts.baht = new Chart(ctxBaht,{ 
+  type:'line', 
+  data:{ labels, datasets:[{ label:'Baht Sum', data:bahtSum, borderColor:'#ffd700', fill:false, tension:0.3 }] }, 
+  options:commonOptions 
+});
+charts.dollar = new Chart(ctxDollar,{ 
+  type:'line', 
+  data:{ labels, datasets:[{ label:'Dollar Sum', data:dollarSum, borderColor:'#ffcc33', fill:false, tension:0.3 }] }, 
+  options:commonOptions 
+});
+charts.ratio = new Chart(ctxRatio,{ 
+  type:'line', 
+  data:{ labels, datasets:[{ label:'Baht', data:bahtData, borderColor:'#ffd700', fill:false, tension:0.3 },{ label:'Dollar', data:dollarData, borderColor:'#ffcc33', fill:false, tension:0.3 }] }, 
+  options:commonOptions 
+});
+charts.percent = new Chart(ctxPercent,{ 
+  type:'line', 
+  data:{ labels, datasets:[{ label:'Baht % Dollar', data:percentData, borderColor:'#ffae42', fill:false, tension:0.3 }] }, 
+  options:commonOptions 
+});
+
+function showTab(tab){
+    // ซ่อน tab อื่น
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display='none');
+    // แสดง tab ที่เลือก
+    document.getElementById(tab).style.display='block';
+    
+    // อัปเดตปุ่ม sidebar ให้ active
+    document.querySelectorAll('.sidebar-overlay button').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.sidebar-overlay button[onclick="showTab('${tab}')"]`).classList.add('active');
+
+    // 🔥 ปิด sidebarOverlay อัตโนมัติ
+    document.getElementById("sidebarOverlay").classList.remove("active");
+}
+
 
 </script>
 </body>
